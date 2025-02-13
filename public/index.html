@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>College Campus Map</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter">
+  <style>
+@keyframes neon-border {
+    0% {
+        box-shadow: 0 0 2.5px 0.5px #fff, 0 0 5px 1px #fff, 0 0 7.5px 1.5px #fff, 0 0 10px 2px #fff, 0 0 35px 5px #fff, inset 0 0 2px #fff;
+    }
+    50% {
+        box-shadow: 0 0 5px 1px #fff, 0 0 7.5px 1.5px #fff, 0 0 10px 2px #fff, 0 0 16.5px 3px #fff, 0 0 50px 5px #fff, inset 0 0 2px #fff;
+    }
+    100% {
+        box-shadow: 0 0 2.5px 0.5px #fff, 0 0 5px 1px #fff, 0 0 7.5px 1.5px #fff, 0 0 10px 2px #fff, 0 0 35px 5px #fff, inset 0 0 2px #fff;
+    }
+}
+
+    .container {
+        position: relative;
+    }
+    
+    #map {
+      height: 1000px;
+      width: 100%;
+      height: 750px;
+      border-radius: 10px;
+      animation: neon-border 4s infinite alternate;
+    }
+
+    #zoomToMarker {
+      display: block;
+      width: 100%;
+      max-width: 300px;
+      margin: 20px auto;
+      padding: 10px;
+      font-size: 18px;
+      border-radius: 5px;
+      background-color: #4F46E5;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+    #zoomToMarker:hover {
+      box-shadow: 0 3px 10px -1px #4F46E5;
+    }
+
+    #zoomToMarker:active {
+      transform: translateY(2px);
+      box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .dropdown-container {
+  display: flex;
+}
+/* Dropdown container */
+.dropdown-container {
+  margin-top: 20px;
+  margin-left: 100px;
+  margin-right: 100px;
+  display: flex; /* Use flexbox to arrange items */
+  justify-content: space-between; /* Add space between items */
+}
+
+/* Custom dropdown styles */
+.dropdown {
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  font-size: 16px;
+  flex: 1; /* Each dropdown takes equal space */
+  margin-right: 10px; /* Add space between dropdowns */
+}
+
+.card {
+  width: auto;
+  height: auto;
+  border: 1px solid #ccc;
+  overflow: hidden;
+  margin-bottom: 20px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  height: 500px;
+  border-radius: 0.5rem;
+  border-width: 1px;
+border-style: solid;
+border-color: #e2e8f0;
+box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+.card img {
+  width: 100%;
+  height: 90%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  z-index: 1; /* Set a higher z-index */
+}
+
+.cardContent {
+  padding: 10px;
+  margin: 0;
+  flex-grow: 1;
+}
+
+
+.popup {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+  z-index: 9999; /* Ensure popup is on top of other elements */
+  justify-content: center;
+  align-items: center;
+}
+
+.popupContent {
+  background-color: white;
+  height: 60%;
+  width: 40%;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Add shadow */
+  text-align: center;
+  justify-content: center;
+}
+
+#popupTitle {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+#popupImage {
+  width: 70%; /* Set width to 50% */
+  height: 70%; /* Set height to 50% */
+  object-fit: cover; /* Cover the entire container while maintaining aspect ratio */
+  border-radius: 10px;
+  margin-bottom: 10px;
+  display: block; /* Ensure the image is displayed as a block element */
+  margin: auto; /* Center the image horizontally */
+}
+
+#popupDescription {
+  margin-top: 20px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* Change the width of the cards */
+  gap: 30px; /* Change the gap between cards */
+  padding: 0px; /* Change the padding around the grid */
+}
+
+  </style>
+</head>
+<body >
+<div style="background-image: url('MapBG.png'); background-size: cover; background-position: center; background-attachment: fixed; height: 130vh; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;">
+
+  <div class='Header' style="margin-top:0px; margin-bottom: 50px; background: rgba(255, 255, 255, 0.03); box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); backdrop-filter: blur(1.5px); -webkit-backdrop-filter: blur(11.5px); border-radius: 60px; padding-top: 30px; padding-bottom: 30px; padding-left: 80px; padding-right: 80px; outline: 0.1px solid #fdfdfd;">
+    <h1 class=" tracking-tight text-white sm:text-5xl" style="font-family: 'Inter', sans-serif; font-weight: 900;">INTERACTIVE CAMPUS MAP</h1>
+</div>
+
+<div class="container">
+        <div id="map" class="rounded-lg shadow-lg"></div>
+</div>
+
+<div class='SearchBar' style="margin-top: 50px;">
+  <div class='max-w-lg'>
+    <div class="relative flex items-center w-full h-12 rounded-lg focus-within:shadow-lg bg-white overflow-hidden ">
+      <div class="grid place-items-center h-full w-5 text-gray-700"></div>
+      <input class="peer h-full w-full outline-none text-sm text-gray-700 pr-2 mar" type="text" id="search-box"
+        placeholder="Search for a place.." style="width: calc(100% - 3rem);"> <!-- Adjusted width to accommodate the icon -->
+    </div>
+  </div>
+</div>
+
+
+<div class="dropdown-container mt-4 max-w-lg" style="margin-top: 25px; ">
+          <select id="dropdownA" class="dropdown"></select>
+          <select id="dropdownB" class="dropdown"></select>
+</div>
+
+<div>
+  <button id="zoomToMarker"
+          class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          style="width: 500px; margin-top: 25px;">
+      Zoom to Marker
+  </button>
+</div>
+</div>
+
+<section style="margin-bottom: 10px; margin-left: 10px; margin-right: 10px; padding-bottom: 30px; padding-left: 30px; padding-right: 30px;">
+  <button id="showAllCardsButton">Show All Cards</button>
+  <div id="cardsContainer" class="grid grid-cols-3 gap-4 mt-4"></div>
+</section>
+
+<div class="popup" id="popup">
+  <div class="popupContent">
+    <h2 id="popupTitle"></h2>
+    <img id="popupImage" src="" alt="Popup Image">
+    <p id="popupDescription"></p>
+    <button onclick="closePopup()">Close</button>
+  </div>
+</div>
+
+<footer class="bg-gray-900 dark:bg-gray-900">
+  <div class="container flex flex-col items-center justify-between p-6 mx-auto space-y-4 sm:space-y-0 sm:flex-row">
+      <a href="#">
+          <img class="w-auto h-10" src="Logo.png" alt="">
+      </a>
+      <p class="text-sm text-gray-400 dark:text-gray-300">© NMAMIT Copyright 2024. All Rights Reserved.</p>
+      <a href>
+        <span style="display: inline-block; margin-right: 8px;">
+          <svg width="35" height="35" viewBox="0 0 100 100">
+              <a href="https://www.instagram.com/nmamit_nitte/" 
+                 onmouseover="this.querySelector('image').setAttribute('href', 'new_instagram.png')" 
+                 onmouseout="this.querySelector('image').setAttribute('href', 'instagram.png')">
+                  <image href="instagram.png" width="100" height="100" />
+              </a>
+          </svg>
+      </span>            
+      <span style="display: inline-block; margin-right: 8px;">
+        <svg width="35" height="35" viewBox="0 0 100 100">
+            <a href="https://www.facebook.com/NMAMITsince1986/" 
+               onmouseover="this.querySelector('image').setAttribute('href', 'new_facebook.png')" 
+               onmouseout="this.querySelector('image').setAttribute('href', 'facebook.png')">
+                <image href="facebook.png" width="100" height="100" />
+            </a>
+        </svg>
+    </span> 
+    </a>
+  </div>
+</footer>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="map.js"></script>
+
+</body>
+</html>

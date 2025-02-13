@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>College Campus Map</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <style>
+    #map {
+      height: 600px;
+    }
+
+    .dropdownA,
+    .dropdownB {
+      display: block;
+      width: 50%;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 10px;
+      font-size: 18px;
+      border-radius: 5px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    #zoomToMarker {
+      display: block;
+      width: 100%;
+      max-width: 300px;
+      margin: 20px auto;
+      padding: 10px;
+      font-size: 18px;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+    #zoomToMarker:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px #007bff, 0 0 5px #007bff;
+    }
+
+    #zoomToMarker:active {
+      transform: translateY(2px);
+      box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .dropdown-container {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .dropdown {
+      flex: 1;
+      margin-right: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    .dropdown-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .dropdown {
+      flex: 1;
+      margin-right: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+      font-size: 16px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .dropdown:hover {
+      background-color: #e7e7e7;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+
+    .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #f1f1f1;
+    }
+
+    @media (max-width: 600px) {
+      .dropdown-container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100">
+
+  <div class="flex items-center justify-center mt-3">
+    <h1 class="text-4xl font-bold text-center">NMAMIT Interactive Campus Map</h1>
+  </div>
+
+  <div class="container mx-auto px-4 py-5">
+    <div id="map" class="rounded-lg shadow-lg"></div>
+    <div class="mt-5">
+      <div class='max-w-md mx-auto'>
+        <div class="relative flex items-center w-full h-12 rounded-lg focus-within:shadow-lg bg-white overflow-hidden">
+          <div class="grid place-items-center h-full w-12 text-gray-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input class="peer h-full w-full outline-none text-sm text-gray-700 pr-2" type="text" id="search-box"
+            placeholder="Search for a place.." />
+        </div>
+      </div>
+
+      <div class="dropdown-container">
+        <select id="dropdownA" class="dropdown">
+        </select>
+        <select id="dropdownB" class="dropdown">
+        </select>
+      </div>
+
+      <button id="zoomToMarker" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Zoom to Marker
+      </button>
+
+      <div id="card-container" class="grid grid-cols-3 gap-4 mt-4"></div>
+
+    </div>
+  </div>
+
+  <footer class="bg-white rounded-lg shadow m-4 dark:bg-gray-800">
+    <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
+      <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2024 NITTE™</a>. All Rights Reserved.
+      </span>
+      <ul class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
+        <li>
+          <a>About </a>
+        </li>
+        <li>
+          <a>Privacy Policy</a>
+        </li>
+        <li>
+          <a>Licensing</a>
+        </li>
+        <li>
+          <a>Contact</a>
+        </li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="map"></script>
+</body>
+
+</html>
